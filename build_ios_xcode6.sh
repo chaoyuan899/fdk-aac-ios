@@ -1,11 +1,12 @@
 #!/bin/sh
-###modified from http://blog.csdn.net/favormm/article/details/6772097
+###modified from http://blog.csdn.net/chaoyuan899/article/details/51701100
+
 set -xe
 
 DEVELOPER=`xcode-select -print-path`
 DEST=`pwd .`"/libfdk-aac"
 
-ARCHS="x86_64 armv7 armv7s arm64"
+ARCHS="x86_64 armv7 armv7s arm64 i386"
 LIBS="libfdk-aac.a"
 
 mkdir -p $DEST
@@ -25,7 +26,7 @@ for arch in $ARCHS; do
                 PATH=`xcodebuild -version -sdk iphoneos PlatformPath`"/Developer/usr/bin:$PATH" \
                 SDK=`xcodebuild -version -sdk iphoneos Path` \
 		CC="xcrun --sdk iphoneos clang -arch $arch $IOSMV --sysroot=$SDK -isystem $SDK/usr/include"\
-                CXX="xcrun --sdk iphoneos clang++ -arch $arch $IOSMV --sysroot=$SDK -isystem $SDK/usr/include" \
+                CXX="xcrun --sdk iphoneos clang++ -arch $arch $IOSMV --sysroot=$SDK -fembed-bitcode-marker -isystem $SDK/usr/include" \
                 LDFLAGS="-Wl,-syslibroot,$SDK" \
                 ./configure \
                 --host=arm-apple-darwin \
@@ -37,7 +38,7 @@ for arch in $ARCHS; do
                 PATH=`xcodebuild -version -sdk iphonesimulator PlatformPath`"/Developer/usr/bin:$PATH" \
 		SDKROOT=$(xcrun --sdk iphonesimulator --show-sdk-path)
 		CC="$(xcrun --sdk iphonesimulator -f clang)"
-		CXX="xcrun --sdk iphonesimulator clang++ -arch $arch $IOSMV -miphoneos-version-min=5.0" \
+		CXX="xcrun --sdk iphonesimulator clang++ -arch $arch -fembed-bitcode-marker $IOSMV -miphoneos-version-min=5.0" \
                 ./configure \
                 --prefix=$DEST \
                 --disable-shared
